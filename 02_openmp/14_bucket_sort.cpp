@@ -22,8 +22,8 @@ int main() {
     bucket[key[i]]++;
   }
   for (int i=0, j=0; i<range; i++) {
-#pragma omp parallel
-    for (int k=bucket[i]; k>0; k--) {
+#pragma omp parallel firstprivate(bucket)
+    for (; bucket[i]>0; bucket[i]--) {
 #pragma omp single
       key[j++] = i;
     }
