@@ -7,19 +7,28 @@ void merge(std::vector<T>& vec, int begin, int mid, int end) {
   std::vector<T> tmp(end-begin+1);
   int left = begin;
   int right = mid+1;
-  for (int i=0; i<tmp.size(); i++) { 
-    if (left > mid)
-      tmp[i] = vec[right++];
-    else if (right > end)
-      tmp[i] = vec[left++];
-    else if (vec[left] <= vec[right])
-      tmp[i] = vec[left++];
-    else
-      tmp[i] = vec[right++]; 
+#pragma omp parallel
+  {
+  #pragma omp for
+    for (int i=0; i<tmp.size(); i++) {
+      #pragma omp critical
+      {
+        if (left > mid)
+          tmp[i] = vec[right++];
+        else if (right > end)
+          tmp[i] = vec[left++];
+        else if (vec[left] <= vec[right])
+          tmp[i] = vec[left++];
+        else
+          tmp[i] = vec[right++];
+      }
+    }
+#pragma omp for
+    for (int i=0; i<tmp.size(); i++){
+      #pragma omp critical
+      vec[begin++] = tmp[i];
+    }
   }
-#pragma omp parallel for
-  for (int i=0; i<tmp.size(); i++) 
-    vec[begin++] = tmp[i];
 }
 
 template<class T>
