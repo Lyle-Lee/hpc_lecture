@@ -2,9 +2,10 @@
 #include <cstdlib>
 
 __device__ void count(int *pos, int *tmp, int range, int i) {  //count position by scan
-  for(int j=1; j<range; j<<=1) {
+  for (int j=1; j<range; j<<=1) {
     tmp[i] = pos[i];
     __syncthreads();
+    if (i<j) return;
     pos[i] += tmp[i-j];
     __syncthreads();
   }
