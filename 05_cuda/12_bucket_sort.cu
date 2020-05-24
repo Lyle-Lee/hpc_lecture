@@ -24,7 +24,11 @@ __global__ void bucket_sort(int *bucptr, int *kptr, int *pos, int *tmp, int n, i
   __syncthreads();
   for (int j=0; j<range; j++) {
     __syncthreads();
-    if (i<pos[j] && i>=pos[j-1]) {
+    if (j==0 && i<pos[j]) {
+      kptr[i] = j;
+      return;
+    }
+    else if (i<pos[j] && i>=pos[j-1]) {
       kptr[i] = j;
       return;
     }
