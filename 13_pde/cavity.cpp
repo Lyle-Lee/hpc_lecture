@@ -37,8 +37,8 @@ void pressure_poisson(double p[][ny*nx], double dx, double dy, double b[]) {
         }
         for (int i=0; i<nx; i++) {
             p[count][i*nx+nx-1] = p[count][i*nx+nx-2];
-            p[count][i*nx] = p[count][i*nx+1];
             p[count][i] = p[count][nx+i];
+            p[count][i*nx] = p[count][i*nx+1];
             p[count][(ny-1)*nx+i] = 0;
         }
     }

@@ -33,11 +33,15 @@ __device__ void pressure_poisson(double *p, double *po, double dx, double dy, do
                         powf(dx, 2.0) * powf(dy, 2.0) / (2*(powf(dx, 2.0) + powf(dy, 2.0))) * b[j*nx+i];
         }
         __syncthreads();
-        p[j*nx+nx-1] = p[j*nx+nx-2];
-        p[j*nx] = p[j*nx+1];
+        if (i == 0) {
+            p[j*nx+nx-1] = p[j*nx+nx-2];
+            p[j*nx] = p[j*nx+1];
+        }
         __syncthreads();
-        p[i] = p[nx+i];
-        p[(ny-1)*nx+i] = 0;
+        if (j == 0) {
+            p[i] = p[nx+i];
+            p[(ny-1)*nx+i] = 0;
+        }
     }
 }
 
@@ -64,15 +68,18 @@ __global__ void cavity_flow(double *u, double *v, double *p, double *uo, double 
                         nu * (dt/powf(dx, 2.0) * (vo[j*nx+i+1] - 2*vo[j*nx+i] + vo[j*nx+i-1]) + 
                               dt/powf(dy, 2.0) * (vo[(j+1)*nx+i] - 2*vo[j*nx+i] + vo[(j-1)*nx+i]));
         }
-        u[i] = 0;
-        u[j*nx] = 0;
-        u[j*nx+nx-1] = 0;
-        v[i] = 0;
-        v[j*nx] = 0;
-        v[(ny-1)*nx+i] = 0;
-        v[j*nx+nx-1] = 0;
-        __syncthreads();
-        u[(ny-1)*nx+i] = 1;
+        if (i == 0) {
+            u[j*nx] = 0;
+            u[j*nx+nx-1] = 0;
+            v[j*nx] = 0;
+            v[j*nx+nx-1] = 0;
+        }
+        if (j == 0) {
+            u[i] = 0;
+            v[i] = 0;
+            v[(ny-1)*nx+i] = 0;
+            u[(ny-1)*nx+i] = 1;
+        }
     }
 }
 
@@ -100,7 +107,7 @@ int main() {
             b[j*nx+i] = 0;
         }
     }
-    dim3 grid = dim3((ny+BS-1)/BS, (nx+BS-1)/BS, 1);
+    dim3 grid = dim3((nx+BS-1)/BS, (ny+BS-1)/BS, 1);
     dim3 block = dim3(BS, BS, 1);
     cavity_flow<<<grid, block>>>(u, v, p, uo, vo, po, b, rho, nu, dt, dx, dy);
     cudaDeviceSynchronize();
