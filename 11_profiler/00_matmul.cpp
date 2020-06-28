@@ -4,6 +4,8 @@
 #include <vector>
 #include <chrono>
 #include <immintrin.h>
+#include "timers.h"
+
 using namespace std;
 typedef vector<vector<float>> matrix;
 
@@ -43,7 +45,7 @@ void matmult(matrix &A, matrix &B, matrix &C, int N) {
                   __m256 Cvec = _mm256_load_ps(Cc+i*nc+j);
                   Cvec = _mm256_fmadd_ps(Avec, Bvec, Cvec);
                   _mm256_store_ps(Cc+i*nc+j, Cvec);
-                }
+		}
               }
             }
           }
@@ -71,10 +73,10 @@ int main(int argc, char **argv) {
       C[i][j] = 0;
     }
   }
-  auto tic = chrono::steady_clock::now();
+  startTimer();
   matmult(A,B,C,N);
-  auto toc = chrono::steady_clock::now();
-  double time = chrono::duration<double>(toc - tic).count();
+  stopTimer();
+  double time = getTime();
   printf("N=%d: %lf s (%lf GFlops)\n",N,time,2.*N*N*N/time/1e9);
 #pragma omp parallel for
   for (int i=0; i<N; i++)

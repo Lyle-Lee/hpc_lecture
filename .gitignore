@@ -1,8 +1,14 @@
+*.cache
 *.dat
 *.h5
 *.o
 *.out
+*.prot
 *.s
+*.stf
+*.swp
 .ipynb_checkpoints
 .metadata
+.python-version
+data
 RemoteSystemsTempFiles
