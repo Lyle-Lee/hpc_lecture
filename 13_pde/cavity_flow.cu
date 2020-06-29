@@ -68,6 +68,7 @@ __global__ void cavity_flow(double *u, double *v, double *p, double *uo, double 
                         nu * (dt/powf(dx, 2.0) * (vo[j*nx+i+1] - 2*vo[j*nx+i] + vo[j*nx+i-1]) + 
                               dt/powf(dy, 2.0) * (vo[(j+1)*nx+i] - 2*vo[j*nx+i] + vo[(j-1)*nx+i]));
         }
+        __syncthreads();
         if (i == 0) {
             u[j*nx] = 0;
             u[j*nx+nx-1] = 0;
@@ -78,6 +79,7 @@ __global__ void cavity_flow(double *u, double *v, double *p, double *uo, double 
             u[i] = 0;
             v[i] = 0;
             v[(ny-1)*nx+i] = 0;
+            __syncthreads();
             u[(ny-1)*nx+i] = 1;
         }
         __syncthreads();
