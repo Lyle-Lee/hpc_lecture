@@ -24,7 +24,6 @@ __device__ void bulid_up_b(double *b, double rho, double dt, double *u, double *
 
 __device__ void pressure_poisson(double *p, double *po, double dx, double dy, double *b, int i, int j) {
     for (int t=0; t<nit; t++) {
-        __syncthreads();
         po[j*nx+i] = p[j*nx+i];
         __syncthreads();
         if (i>0 && i<nx-1 && j>0 && j<ny-1) {
@@ -42,6 +41,7 @@ __device__ void pressure_poisson(double *p, double *po, double dx, double dy, do
             p[i] = p[nx+i];
             p[(ny-1)*nx+i] = 0;
         }
+        __syncthreads();
     }
 }
 
@@ -80,6 +80,7 @@ __global__ void cavity_flow(double *u, double *v, double *p, double *uo, double 
             v[(ny-1)*nx+i] = 0;
             u[(ny-1)*nx+i] = 1;
         }
+        __syncthreads();
     }
 }
 
